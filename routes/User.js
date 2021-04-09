@@ -1,13 +1,11 @@
 const router=require('express').Router()
 const loginController=require('../controller/Login')
-const afterController=require('../controller/after')
-const auth = require('../middleware/auth');
-
-router.get('/convertir', loginController.convert)
 
 router.route('/login')
-    .get(loginController.login)
-    .post(auth,loginController.postlogin)
-
+    .post(loginController.login)
+router.route('/get')
+    .get(loginController.getdata)
+router.route('/update')
+    .put(loginController.update)
 
 module.exports=router

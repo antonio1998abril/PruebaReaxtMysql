@@ -1,36 +1,33 @@
+import axios from 'axios'
 import  { useState,useEffect } from 'react'
-import Axios from 'axios'
-
-/* import AdminPost from '../components/mainpages/CreatePost/AdminPost' */
 
 function UserApi() {
-    const [isLogged,setIsLogged]=useState(false)
-    
-    
-///Para mandar datos de un componente a otro declaras el dato que ocupas
-    const [userid,setuserid]=useState('')
-    const [username,setUsername]=useState('')
-/* GLOBAL */
-const [getlogin,setLogin]=useState({})
+    const [isLogged, setIsLogged]=useState(false)
+    const [fieldUser, setFieldUser] = useState([])
+    const [callback ,setCallback] = useState(false)
 
     useEffect(() =>{
         const getlogin = async () => {
-            const res = await Axios.get('/convertir')
-            setLogin(res.data)  
+           const userlog= localStorage.getItem("islogged")
+            if(userlog)
+            setIsLogged(true)
         }
         getlogin()   
     },[])
 
-console.log(getlogin)
-/////////localstorage no lo necesito XD
-    localStorage.setItem('userid',userid)
-    localStorage.setItem('name',username)
+    useEffect(()=>{
+        const getData= async() => {
+            await axios.get('/get').then((data)=>{
+                setFieldUser(data.data)
+            })
+        }
+        getData()
+    },[callback])
 
     return {
         isLogged:[isLogged,setIsLogged],
-        ///lo mandas a donde?, a donde lo quieras mandar en este caso Begin
-        userid:[userid,setuserid],
-      
+        fieldUser:[fieldUser, setFieldUser],
+        callback:[callback,setCallback]
     }
   
 }

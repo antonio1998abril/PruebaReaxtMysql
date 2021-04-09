@@ -8,11 +8,12 @@ import NotFound from './NotFound/NotFound'
 function Pages() {
     const  state= useContext(GlobalState)
     const [isLogged]=state.userAPI.isLogged
+
     return (
         <div>
             <Switch>
-                <Route path="/" exact component={Begin}></Route>
-                <Route path="/login" exact component={isLogged ? NotFound:Login}></Route>
+                <Route path="/" exact component={isLogged ? Begin:Login}></Route>
+                <Route path="/login" exact component={isLogged ? Begin:Login}></Route>
                 <Route path="*" exact component={NotFound}></Route>
             </Switch>
         </div>

@@ -1,62 +1,51 @@
 var dbconn = require('./../config/db');
-const bcrypt=require('bcrypt');
 
-module.exports={
-    convert : async(req, res) => {
-        dbconn.query ('SELECT password FROM user',async function(err,result){
-            var data=JSON.stringify(result);
-            const json =JSON.parse(data);
-            ///cambiar la position del array
-            const pass=json[1]
-            const passwordHash= await bcrypt.hash(pass.password,10);
-         const contra=pass.password
-        console.log(contra)    
-        console.log(passwordHash)
 
-            dbconn.query('SELECT * FROM user WHERE password= ?',[contra],async(err,get)=>{
-                const data=JSON.stringify(get)
-                const json=JSON.parse(data)
-                value=json[0].id
-               console.log('contraseña',value)
-                
-                     dbconn.query('UPDATE user SET password=? WHERE id=?',[passwordHash,value],async function(err,result){
-              
-                        return res.json({error:false,result:result})
-                    }) 
-                 
-               
-            });
-        })
-            },
-    postlogin:async(req,res)=>{
-        try{
-            
-            var logged={
-                user: function(){
-                 const {name}=req.body;
-                 req.session.loggedin=true;
-                 req.session.name=name;
+module.exports = {
+    login: async(req, res) => {
+            const {nombre, password} = req.body;
+            dbconn.query('SELECT * FROM user WHERE nombre = ? AND password = ?',[nombre, password], async function(err,result){
+                //mysql retorna un array de objetos pero yo solo busco el match del primero
+                const data=JSON.stringify(result)
+                const toobject =JSON.parse(data)
+                const singleobject=Object.assign({},result)
+                const senddata=singleobject[0]
+
+                if(toobject.length === 0){
+                    res.json(false)
+                }else{
+                    res.json(senddata)
                 }
-            }   
-         logged.user();
-         res.json({logged:"true"})
-         
-         }catch(err){
-             return res.status(302).json({msg:err.message})
-         }
-    },
-    login: async(req, res) =>{
-            try{
-                const session=req.session.name;
-                if(session)
-                    res.json(session)
-                
-            }catch(err){
-                return res.status(500).json({msg:err.message})
-            }
+            })
         },
     
+    getdata: async(req, res) => {
+        dbconn.query('SELECT * FROM user', async function (err, result){
+          const  newresult =JSON.stringify(result)
+           const toObject =JSON.parse(newresult)
+            res.json(toObject)
+  
+        })
+    },
+    update: async (req, res) => {
+        const {nombre,password,_id}=req.body
+        const year= new Date();
 
+
+        console.log('seenvian',req.body)
+        dbconn.query('SELECT * FROM user WHERE _id = ?',[_id], async function (err, result){
+           const data =JSON.stringify(result)
+           const json =JSON.parse(data);
+
+             if(!json[1]){
+                 console.log(year)
+                dbconn.query('UPDATE user SET nombre = ?, password = ?, modificacion=? WHERE _id = ?',[nombre, password, year, _id],async function(err ,result){
+                    res.json(result)
+                })
+                
+            } 
+        })
+    }
 
 
 };
